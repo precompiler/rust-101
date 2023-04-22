@@ -14,4 +14,72 @@ fn main() {
     let s1 = String::from("key");
     let s2 = s1.clone(); // deep copy, value in heap will be copied, so s2 and s1 are pointing to different memories
     println!("{s1}, {s2}");
+
+    let msg = String::from("This is a msg");
+    print_string(msg); // ownership of msg is moved to the function, when the scope of the function ends, msg will be freed
+    // println!("{msg}");   // won't work as msg has been freed
+    let i: i32 = 10;
+    print_int32(i); // data types like i32 implements the `Copy` trait, which allows variables of such type to be stored in stack
+    println!("{i}"); // print_int32 got a copy of i, the copy will be freed, but i itself is still valid here
+
+    let mut msg = String::from("This is a msg");
+    msg = print_string_and_return(msg); // the ownership passed to the function and returned back
+    println!("{msg}");
+
+    let msg = String::from("Another msg");
+    let l = length(msg);
+    println!("DEBUG: length is {l}");
+    // println!("length of {msg} is {l}") // msg has been freed, as the ownership had been given to length function
+
+    let msg = String::from("Another msg");
+    let l = length_by_ref(&msg); // passing the reference of a variable allows a function to 'borrow' the value(in this example, the reference is read only), ownership won't change
+    println!("length of '{msg}' is {l}");
+
+    let mut msg = String::from("Another msg");
+    let suffix = String::from("!!!");
+    suffix_a_string(&mut msg, &suffix); // mutable reference
+    println!("{msg}");
+
+    let mut msg = String::from("Another msg");
+    let _msg1 = &mut msg;
+    let _msg2 = &mut msg;
+    // println!("{msg1}, {msg2}"); // we cannot borrow a mutable reference more than once in the same scope
+    suffix_a_string(&mut msg, &suffix);
+    suffix_a_string(&mut msg, &suffix);
+    let _msg1 = &msg;
+    let _msg2 = &msg;
+    let _msg3 = &mut msg; // we cannot have mutable reference if immutable refs alread exist
+    println!("{msg}");
+    // println!("{_msg1}");
 }
+
+fn print_string(s: String) {
+    println!("{s}");
+}
+
+fn print_int32(i: i32) {
+    println!("{i}");
+}
+
+fn print_string_and_return(s: String) -> String {
+    println!("{s}");
+    return s;
+}
+
+fn length(s: String) -> usize {
+    return s.len();
+}
+
+fn length_by_ref(s: &String) -> usize {
+    return s.len();
+}
+
+fn suffix_a_string(src: &mut String, suffix: &String) {
+    src.push_str(suffix);
+}
+/*
+fn invalid_string() -> &String {
+    let ret = String::from("dummy"); // ownership of ret is this function, and ret will be freed when the function ends
+    return &ret; // returning a reference to the outer scope is meaningless as the reference is pointing to a piece of freed memory, compiler will catch such issue
+}
+*/
