@@ -51,6 +51,21 @@ fn main() {
     let _msg3 = &mut msg; // we cannot have mutable reference if immutable refs alread exist
     println!("{msg}");
     // println!("{_msg1}");
+    // let _s: String = "abc"; String literals are of type &str not String
+    let _s: &str = "abc"; // String slice
+    let _s: &str = &String::from("abc"); // a string slice should always be a reference
+    let _s: &String = &String::from("abc");
+    let _s1: &str = _s; // you can also assign a &String to &str
+    let _s: &str = &(String::from("abc")[0..]);
+    let ss = substring("hello abc", 0, 5);
+    println!("{ss}");
+    let s = &String::from("hello abc");
+    let ss = substring(s, 0, 5);
+    println!("{ss}");
+    let ss = substring(&s[..], 0, 5);
+    println!("{ss}");
+    let _i: &[i32] = &[1, 2, 3][..]; // int slice
+    println!("{:?}", _i)
 }
 
 fn print_string(s: String) {
@@ -83,3 +98,8 @@ fn invalid_string() -> &String {
     return &ret; // returning a reference to the outer scope is meaningless as the reference is pointing to a piece of freed memory, compiler will catch such issue
 }
 */
+
+fn substring(src: &str, start: usize, end: usize) -> &str {
+    // to lazy to do sane checks
+    return &src[start..end];
+}
