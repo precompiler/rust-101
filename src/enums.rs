@@ -71,4 +71,11 @@ fn main() {
     let x = None;
     let y = square(x);
     println!("{}", y.is_none());
+    // if let
+    if let Some(x) = Some(1) {
+        println!("value is {}", x);
+    }
+    if let SystemEvent::Print(msg) = SystemEvent::Print(String::from("hello")) {
+        println!("msg is {}", msg);
+    }
 }
