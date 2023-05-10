@@ -25,6 +25,26 @@ fn main() {
     let func = move || println!("{s}"); // ownership of s moved to the closure
     func();
     // println!("{s}"); s has been released
+
+    let x = vec![1, 2, 3];
+    for i in x {
+        println!("{i}");
+    }
+
+    let x = vec![1, 2, 3];
+    for i in x.iter() {
+        println!("{i}");
+    }
+    let mut it = x.iter();
+    println!("{}", it.next() == Some(&1));
+    let sum: i32 = x.iter().sum();
+    println!("{}", sum);
+    let sum: i32 = it.sum();
+    println!("{}", sum);
+
+    let x = vec![1, 2 ,3];
+    let r: Vec<_> = x.iter().map(|x| x * x).collect();
+    println!("{:?}", r);
 }
 
 fn calculator(a: i32, b: i32, func: fn(i32, i32) -> i32) -> i32 {
