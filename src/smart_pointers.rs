@@ -1,4 +1,5 @@
 use std::ops::Deref;
+use std::mem::drop;
 
 fn main() {
     let mut x = 1;
@@ -53,6 +54,14 @@ fn main() {
     // but since CrazyBox implements Deref, rust will call deref method to convert a reference to a type to a reference to another type
     println!("{sum}");
 
+    {
+        let _a = DummyDroppable{data: String::from("a")};
+        let _b = DummyDroppable{data: String::from("b")}; // last defined, first dropped
+    }
+
+    let _a = DummyDroppable{data: String::from("drop before scope ends")};
+    drop(_a);
+    println!("_a dropped before scope ends");
 }
 
 #[derive(Debug)]
@@ -95,4 +104,14 @@ impl<T> Deref for CrazyBox<T> {
 
 fn add<'a> (a: &'a i32, b: &'a i32) -> i32 {
     return a + b;
+}
+
+struct DummyDroppable {
+    data: String
+}
+
+impl Drop for DummyDroppable {
+    fn drop(&mut self) {
+        println!("about to drop the DummyDroppable, data => {}", self.data);
+    }
 }
