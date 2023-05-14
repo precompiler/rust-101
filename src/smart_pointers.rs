@@ -2,6 +2,7 @@ use std::ops::Deref;
 use std::mem::drop;
 use std::rc::Rc;
 use crate::List::{Cons, Nil};
+use std::cell::RefCell;
 
 fn main() {
     let mut x = 1;
@@ -83,6 +84,8 @@ fn main() {
     println!("{:?}", _a);
     //println!("{:?}", _b);
     println!("{:?}", _c);
+
+    test_switcher();
 }
 
 #[derive(Debug)]
@@ -141,4 +144,56 @@ impl Drop for DummyDroppable {
 enum List {
     Cons(i32, Rc<List>),
     Nil
+}
+
+trait Messenger {
+    fn send(&self, msg: &str);
+}
+
+struct Switcher<'a, T: Messenger> {
+    messenger: &'a T,
+    channel: u8
+}
+impl<'a, T> Switcher<'a, T>
+where
+  T: Messenger {
+    fn new(messenger: &'a T, channel: u8) -> Switcher<'a, T> {
+        return Switcher {messenger, channel};
+    }
+
+    fn set_channel(&mut self, channel: u8) {
+        self.channel = channel;
+        if self.channel == 0 {
+            self.messenger.send("use default channel");
+        } else if self.channel == 1 {
+            self.messenger.send("use channel 1");
+        } else {
+            self.messenger.send("unknown channel");
+        }
+    }
+}
+
+#[derive(Debug)]
+struct MockMessenger {
+    msg_cache: RefCell<Vec<String>>
+}
+impl MockMessenger {
+    fn new() -> MockMessenger {
+        return MockMessenger {
+            msg_cache: RefCell::new(vec![])
+        }
+    }
+}
+impl Messenger for MockMessenger {
+    fn send(&self, msg: &str) {
+        self.msg_cache.borrow_mut().push(String::from(msg)); // even self is immutable, we can still mutate msg_cache field, as it's a RefCell.
+        // self.msg_cache.borrow_mut() // will panic, we cannot borrow it twice;
+    }
+}
+fn test_switcher() {
+    let mock_messenger = MockMessenger::new();
+    let mut switcher = Switcher::new(&mock_messenger, 0);
+    switcher.set_channel(1);
+    switcher.set_channel(2);
+    println!("{:?}", mock_messenger)
 }
