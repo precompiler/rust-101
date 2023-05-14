@@ -1,5 +1,7 @@
 use std::ops::Deref;
 use std::mem::drop;
+use std::rc::Rc;
+use crate::List::{Cons, Nil};
 
 fn main() {
     let mut x = 1;
@@ -62,6 +64,25 @@ fn main() {
     let _a = DummyDroppable{data: String::from("drop before scope ends")};
     drop(_a);
     println!("_a dropped before scope ends");
+
+    let a = Rc::new(Cons(3, Rc::new(Cons(2, Rc::new(Nil)))));
+    println!("reference count {}", Rc::strong_count(&a));
+    let b = Cons(4, Rc::clone(&a)); // Rc::clone won't deep clone a, it just increases the reference counter
+    println!("reference count {}", Rc::strong_count(&a));
+    let c = Cons(5, Rc::clone(&a));
+    println!("reference count {}", Rc::strong_count(&a));
+    println!("{:?} {:?}", b, c);
+    println!("{:?}", a);
+
+    let _a = Box::new(String::from("a"));
+    {
+        let _b = Box::new(&a);
+
+    }
+    let _c = Box::new(&a);
+    println!("{:?}", _a);
+    //println!("{:?}", _b);
+    println!("{:?}", _c);
 }
 
 #[derive(Debug)]
@@ -114,4 +135,10 @@ impl Drop for DummyDroppable {
     fn drop(&mut self) {
         println!("about to drop the DummyDroppable, data => {}", self.data);
     }
+}
+
+#[derive(Debug)]
+enum List {
+    Cons(i32, Rc<List>),
+    Nil
 }
