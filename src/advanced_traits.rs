@@ -1,3 +1,5 @@
+use std::fmt;
+use std::fmt::Formatter;
 use std::ops::Add;
 
 fn main() {
@@ -174,5 +176,19 @@ impl Displayable for Sprite {
 impl ThreeD for Sprite {
     fn render(&self) {
         self.display();
+    }
+}
+
+// not possible as Vec is not defined in current crate
+// impl fmt::Display for Vec<String> {
+//     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+//         write!(f, "[{}]", self);
+//     }
+// }
+
+struct Wrapper(Vec<String>);
+impl fmt::Display for Wrapper {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "[{}]", self.0.join(","))
     }
 }
