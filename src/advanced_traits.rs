@@ -153,3 +153,26 @@ impl PowerManager for JVM {
         println!("shutting down JVM and turning off PC");
     }
 }
+
+trait Displayable {
+    fn display(&self);
+}
+
+trait ThreeD : Displayable {
+    fn render(&self);
+}
+
+struct Sprite {
+    x: f32,
+    y: f32
+}
+impl Displayable for Sprite {
+    fn display(&self) {
+        println!("{} {}", self.x, self.y);
+    }
+}
+impl ThreeD for Sprite {
+    fn render(&self) {
+        self.display();
+    }
+}
